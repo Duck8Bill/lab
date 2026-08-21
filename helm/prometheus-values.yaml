@@ -2,4 +2,7 @@ grafana:
   service:
     type: LoadBalancer
     port: 4000
-  adminPassword: hello-world
+  admin:
+    existingSecret: "grafana-admin-password"
+    userKey: admin-user
+    passwordKey: admin-password
