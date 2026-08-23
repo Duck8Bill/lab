@@ -1,0 +1,69 @@
+# homepage-values.yaml
+# Helm chart: jameswynn/homepage
+# Install with:
+#   helm repo add jameswynn https://jameswynn.github.io/helm-charts
+#   helm repo update
+#   kubectl create namespace homepage
+#   helm install homepage jameswynn/homepage -n homepage -f homepage-values.yaml
+#
+# Before applying, run `helm show values jameswynn/homepage` and diff it
+# against this file -- the exact keys for service/serviceAccount/rbac can
+# shift between chart versions.
+
+# --- Expose Homepage on your local network ---
+# k3s ships with its own ServiceLB ("Klipper LB"), so LoadBalancer works
+# out of the box without installing MetalLB.
+apiVersion: v1
+service:
+  main:
+    type: LoadBalancer
+    ports:
+      http:
+        port: 3000
+
+# --- No persistence needed ---
+# Homepage is stateless: it reads config.yaml, services.yaml, widgets.yaml,
+# settings.yaml, and bookmarks.yaml from files mounted via ConfigMap below.
+# There's no database and nothing written back to disk at runtime, so we
+# leave persistence disabled (this chart typically defaults to false anyway).
+persistence:
+  config:
+    enabled: false
+
+# --- Required: allowed Host headers ---
+# Homepage (Next.js) rejects requests whose Host header isn't in this list,
+# regardless of network-level access. This is NOT a network privacy control --
+# it only stops Homepage's own app code from erroring on valid LAN requests.
+# List every host:port combo you'll actually browse to. With LoadBalancer +
+# no hostname, that's your node IP(s) + port 3000. Update once you know the
+# IP k3s's ServiceLB assigns (check with `kubectl get svc -n homepage`).
+# Confirm the exact env-injection key (`env` vs `extraEnvVars` etc.) with
+# `helm show values jameswynn/homepage`.
+env:
+  HOMEPAGE_ALLOWED_HOSTS: "192.168.1.9:3000,192.168.1.10:3000"   # <-- replace with your actual node IP
+
+# --- RBAC: lets the Kubernetes widget read cluster/pod/node status ---
+# Confirm these keys with `helm show values jameswynn/homepage` first --
+# some versions nest this under `serviceAccount` + a separate `rbac` block.
+serviceAccount:
+  create: true
+rbac:
+  create: true
+
+# --- Homepage's own config files, embedded as strings ---
+# IMPORTANT: no "yaml:" sub-key here. Whatever is assigned directly to
+# config.<name> becomes the literal content of <name>.yaml in the
+# ConfigMap. Confirmed by inspecting the mounted file in-cluster after
+# the first (broken) attempt wrapped these in an extra "yaml:" key.
+config:
+  kubernetes:
+    mode: cluster
+
+  settings:
+    title: Home Cluster
+    theme: dark
+    headerStyle: boxed
+
+# Manually defined services (no auto-discovery via Ingress annotations).
+# Replace hrefs/IPs with your actual service addresses.
+
