@@ -45,6 +45,12 @@ env:
         name: homepage-plex-token
         key: PLEX_TOKEN
 
+  - name: HOMEPAGE_VAR_TECHNITIUM_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: homepage-technitium-token
+        key: TECHNITIUM_TOKEN
+
 # --- RBAC: lets the Kubernetes widget read cluster/pod/node status ---
 # Verified directly against chart source (templates/_rbac.yaml): this is
 # NOT "rbac.create" -- it's a flat top-level boolean called "enableRbac".
@@ -102,6 +108,11 @@ config:
             icon: technitium.png
             href: http://192.168.1.6:5380
             description: Local DNS server
+            widget:
+              type: technitium
+              url: http://192.168.1.6:5380
+              key: "{{HOMEPAGE_VAR_TECHNITIUM_TOKEN}}"
+
 
     - Media:
         - Plex:
