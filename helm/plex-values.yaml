@@ -1,0 +1,99 @@
+# plex-values.yaml
+# Helm chart: bjw-s-labs/app-template (verified against chart source directly,
+# not from memory -- see notes below for what was checked)
+#
+# Install with:
+#   helm repo add bjw-s https://bjw-s-labs.github.io/helm-charts
+#   helm repo update
+#   kubectl create namespace plex
+#
+# BEFORE applying: get a fresh Plex claim token (see note on PLEX_CLAIM below),
+# fill in your NAS details, then:
+#   helm install plex bjw-s/app-template -n plex -f plex-values.yaml
+#
+# Verify first with:
+#   helm template plex bjw-s/app-template -n plex -f plex-values.yaml | less
+# and check for any "warning:" lines before touching the cluster.
+
+controllers:
+  main:
+    # Pod-level settings live under "pod:", NOT directly on the controller --
+    # confirmed by reading the chart's actual template logic
+    # ($controllerObject.pod.hostNetwork), since a sibling-level "hostNetwork:"
+    # would be silently ignored, same class of bug we hit with Homepage.
+    pod:
+      # Needed for Plex's local network discovery (GDM) to work, so Shield
+      # devices and the Plex apps on your LAN can auto-find the server.
+      hostNetwork: true
+      # Chart's own docs recommend this pairing whenever hostNetwork is true.
+      dnsPolicy: ClusterFirstWithHostNet
+      # Pin to your more capable worker node -- with hostNetwork, whichever
+      # node this pod lands on IS the server's address, so this must be
+      # fixed or Shield devices could lose the server on a reschedule.
+      nodeSelector:
+        kubernetes.io/hostname: pakube2
+
+      securityContext:
+        supplementalGroups:
+          - 991
+
+
+    containers:
+      main:
+        image:
+          repository: plexinc/pms-docker
+          tag: latest   # consider pinning to a specific version once stable
+        env:
+          TZ: "Europe/London"   # <-- replace with your actual timezone
+          # PLEX_CLAIM is ONLY needed for the very first run, to link this
+          # server to your Plex account. Get a fresh one right before you
+          # run `helm install` (NOT before, they expire in ~4 minutes):
+          #   https://plex.tv/claim
+          # Fill it in, apply immediately, then blank it out again (or just
+          # don't commit this line with a real value in it) -- it's not a
+          # permanent secret, but no reason to leave even a short-lived
+          # token sitting in a repo.
+          PLEX_CLAIM: ""   # <-- fill in right before first install only
+        # No "ports:" needed -- with hostNetwork: true, the container binds
+        # directly to the node's real interfaces, so k8s port mapping is
+        # cosmetic at best here.
+          PLEX_UID: "297536"
+          PLEX_GID: "297536"
+persistence:
+  # Plex's config/database/metadata/thumbnails -- this is what "starting
+  # fresh" means losing if you don't have it, so give it a real PVC even
+  # though we're not migrating the old one.
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 10Gi   # metadata/thumbnails can grow; bump later if needed
+    globalMounts:
+      - path: /config
+
+  # Your media library, served from the Synology over NFS. The chart talks
+  # to NFS directly (no PVC/provisioner needed) -- confirmed by reading the
+  # chart's volume template, which just needs "server" and "path".
+  media:
+    type: nfs
+    server: 192.168.1.2        # <-- replace with your Synology's IP
+    path: /volume1/Home Media        # <-- replace with your actual NFS export path
+    globalMounts:
+      - path: /media
+        readOnly: true
+
+  # Optional but recommended: give transcoding its own scratch space instead
+  # of writing temp files into /config. emptyDir uses the node's local disk.
+  transcode:
+    type: emptyDir
+    globalMounts:
+      - path: /transcode
+
+  gpu:
+    type: hostPath
+    hostPath: /dev/dri
+    hostPathType: Directory
+    globalMounts:
+      - path: /dev/dri
+ 
+ 
+

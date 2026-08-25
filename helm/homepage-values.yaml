@@ -6,14 +6,15 @@
 #   kubectl create namespace homepage
 #   helm install homepage jameswynn/homepage -n homepage -f homepage-values.yaml
 #
-# Before applying, run `helm show values jameswynn/homepage` and diff it
-# against this file -- the exact keys for service/serviceAccount/rbac can
-# shift between chart versions.
+# Before applying, run:
+#   helm template homepage jameswynn/homepage -n homepage -f homepage-values.yaml
+# and check for "warning: skipped value" / "cannot overwrite table" lines --
+# these mean a key's type doesn't match what the chart expects and the
+# override was silently dropped.
 
 # --- Expose Homepage on your local network ---
 # k3s ships with its own ServiceLB ("Klipper LB"), so LoadBalancer works
 # out of the box without installing MetalLB.
-apiVersion: v1
 service:
   main:
     type: LoadBalancer
@@ -24,8 +25,6 @@ service:
 # --- No persistence needed ---
 # Homepage is stateless: it reads config.yaml, services.yaml, widgets.yaml,
 # settings.yaml, and bookmarks.yaml from files mounted via ConfigMap below.
-# There's no database and nothing written back to disk at runtime, so we
-# leave persistence disabled (this chart typically defaults to false anyway).
 persistence:
   config:
     enabled: false
@@ -34,36 +33,83 @@ persistence:
 # Homepage (Next.js) rejects requests whose Host header isn't in this list,
 # regardless of network-level access. This is NOT a network privacy control --
 # it only stops Homepage's own app code from erroring on valid LAN requests.
-# List every host:port combo you'll actually browse to. With LoadBalancer +
-# no hostname, that's your node IP(s) + port 3000. Update once you know the
-# IP k3s's ServiceLB assigns (check with `kubectl get svc -n homepage`).
-# Confirm the exact env-injection key (`env` vs `extraEnvVars` etc.) with
-# `helm show values jameswynn/homepage`.
+# The chart expects a LIST of {name, value} pairs here, not a map -- a map
+# gets silently skipped ("Not a table" warning from helm template).
 env:
-  HOMEPAGE_ALLOWED_HOSTS: "192.168.1.9:3000,192.168.1.10:3000"   # <-- replace with your actual node IP
+  - name: HOMEPAGE_ALLOWED_HOSTS
+    value: "192.168.1.9:3000,192.168.1.10:3000"   # <-- replace with your actual node IP
+
+  - name: HOMEPAGE_VAR_PLEX_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: homepage-plex-token
+        key: PLEX_TOKEN
 
 # --- RBAC: lets the Kubernetes widget read cluster/pod/node status ---
-# Confirm these keys with `helm show values jameswynn/homepage` first --
-# some versions nest this under `serviceAccount` + a separate `rbac` block.
+# Verified directly against chart source (templates/_rbac.yaml): this is
+# NOT "rbac.create" -- it's a flat top-level boolean called "enableRbac".
+# The old rbac: {create: true} block was silently a no-op, which is why
+# the widget got a 403 "nodes is forbidden" error despite RBAC "looking"
+# configured.
+enableRbac: true
 serviceAccount:
   create: true
-rbac:
-  create: true
 
-# --- Homepage's own config files, embedded as strings ---
-# IMPORTANT: no "yaml:" sub-key here. Whatever is assigned directly to
-# config.<name> becomes the literal content of <name>.yaml in the
-# ConfigMap. Confirmed by inspecting the mounted file in-cluster after
-# the first (broken) attempt wrapped these in an extra "yaml:" key.
+# --- Homepage's own config files ---
+# IMPORTANT: give these as native YAML structures (maps/lists), NOT raw
+# multi-line strings via "|". The chart runs each value through toYaml to
+# write it into the ConfigMap. If you hand it an already-stringified block,
+# toYaml treats that string as an opaque blob and wraps another
+# block-scalar marker around it, producing literal "|" text in the file
+# instead of real YAML content -- confirmed via `helm template` output.
+#
+# Adding this section back in one step at a time (services only, for now)
+# after confirming the chart's own defaults render fine without it.
 config:
+  # Required for the Kubernetes info widget below to have permission to
+  # query the cluster API from inside the pod (uses the RBAC/serviceAccount
+  # already enabled further up in this file).
   kubernetes:
     mode: cluster
 
-  settings:
-    title: Home Cluster
-    theme: dark
-    headerStyle: boxed
+  # config.widgets = page-level "info widgets" (resource stats, weather,
+  # etc.) shown at the top of the page -- different from config.services
+  # below, where per-app tiles live.
+  widgets:
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: "cluster"
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
 
-# Manually defined services (no auto-discovery via Ingress annotations).
-# Replace hrefs/IPs with your actual service addresses.
+  # config.services = tiles on the page. A service can optionally carry a
+  # "widget" block for LIVE data (now playing, library stats, etc.) pulled
+  # from that app's own API -- this is different from config.widgets, which
+  # is only for page-level info widgets (resource stats, weather...).
+  #
+  # Starting simple: link-only tile, no widget/API key, so nothing
+  # sensitive ends up in this file before it's pushed to GitHub.
+  services:
+    - Network:
+        - Technitium DNS:
+            icon: technitium.png
+            href: http://192.168.1.6:5380
+            description: Local DNS server
+
+    - Media:
+        - Plex:
+            icon: plex.png
+            href: http://192.168.1.10:32400/web
+            description: Media server
+            widget:
+              type: plex
+              url: http://192.168.1.10:32400
+              key: "{{HOMEPAGE_VAR_PLEX_TOKEN}}"
 
