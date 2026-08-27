@@ -1,20 +1,3 @@
-# homepage-values.yaml
-# Helm chart: jameswynn/homepage
-# Install with:
-#   helm repo add jameswynn https://jameswynn.github.io/helm-charts
-#   helm repo update
-#   kubectl create namespace homepage
-#   helm install homepage jameswynn/homepage -n homepage -f homepage-values.yaml
-#
-# Before applying, run:
-#   helm template homepage jameswynn/homepage -n homepage -f homepage-values.yaml
-# and check for "warning: skipped value" / "cannot overwrite table" lines --
-# these mean a key's type doesn't match what the chart expects and the
-# override was silently dropped.
-
-# --- Expose Homepage on your local network ---
-# k3s ships with its own ServiceLB ("Klipper LB"), so LoadBalancer works
-# out of the box without installing MetalLB.
 service:
   main:
     type: LoadBalancer
@@ -23,18 +6,11 @@ service:
         port: 3000
 
 # --- No persistence needed ---
-# Homepage is stateless: it reads config.yaml, services.yaml, widgets.yaml,
-# settings.yaml, and bookmarks.yaml from files mounted via ConfigMap below.
+
 persistence:
   config:
     enabled: false
 
-# --- Required: allowed Host headers ---
-# Homepage (Next.js) rejects requests whose Host header isn't in this list,
-# regardless of network-level access. This is NOT a network privacy control --
-# it only stops Homepage's own app code from erroring on valid LAN requests.
-# The chart expects a LIST of {name, value} pairs here, not a map -- a map
-# gets silently skipped ("Not a table" warning from helm template).
 env:
   - name: HOMEPAGE_ALLOWED_HOSTS
     value: "192.168.1.9:3000,192.168.1.10:3000"   # <-- replace with your actual node IP
@@ -51,36 +27,34 @@ env:
         name: homepage-technitium-token
         key: TECHNITIUM_TOKEN
 
-# --- RBAC: lets the Kubernetes widget read cluster/pod/node status ---
-# Verified directly against chart source (templates/_rbac.yaml): this is
-# NOT "rbac.create" -- it's a flat top-level boolean called "enableRbac".
-# The old rbac: {create: true} block was silently a no-op, which is why
-# the widget got a 403 "nodes is forbidden" error despite RBAC "looking"
-# configured.
+  #need to add grafana once password sorted out
+
 enableRbac: true
 serviceAccount:
   create: true
 
-# --- Homepage's own config files ---
-# IMPORTANT: give these as native YAML structures (maps/lists), NOT raw
-# multi-line strings via "|". The chart runs each value through toYaml to
-# write it into the ConfigMap. If you hand it an already-stringified block,
-# toYaml treats that string as an opaque blob and wraps another
-# block-scalar marker around it, producing literal "|" text in the file
-# instead of real YAML content -- confirmed via `helm template` output.
-#
-# Adding this section back in one step at a time (services only, for now)
-# after confirming the chart's own defaults render fine without it.
 config:
-  # Required for the Kubernetes info widget below to have permission to
-  # query the cluster API from inside the pod (uses the RBAC/serviceAccount
-  # already enabled further up in this file).
+
   kubernetes:
     mode: cluster
 
-  # config.widgets = page-level "info widgets" (resource stats, weather,
-  # etc.) shown at the top of the page -- different from config.services
-  # below, where per-app tiles live.
+  settings:
+    title: PA Cluster
+    description: My awesome homepage
+    background: https://images.unsplash.com/photo-1502790671504-542ad42d5189?auto=format&fit=crop&w=2560&q=80
+    blur: xl # sm, "", md, xl... see https://tailwindcss.com/docs/backdrop-blur
+    saturate: 50 # 0, 50, 100... see https://tailwindcss.com/docs/backdrop-saturate
+    brightness: 50 # 0, 50, 75... see https://tailwindcss.com/docs/backdrop-brightness
+    opacity: 50 # 0-100
+    startUrl: https://www.skysports.com/
+    theme: dark
+    headerStyle: boxed
+
+  layout:
+    Media:
+      style: row
+      columns: 4
+
   widgets:
     - kubernetes:
         cluster:
@@ -95,13 +69,7 @@ config:
           memory: true
           showLabel: true
 
-  # config.services = tiles on the page. A service can optionally carry a
-  # "widget" block for LIVE data (now playing, library stats, etc.) pulled
-  # from that app's own API -- this is different from config.widgets, which
-  # is only for page-level info widgets (resource stats, weather...).
-  #
-  # Starting simple: link-only tile, no widget/API key, so nothing
-  # sensitive ends up in this file before it's pushed to GitHub.
+
   services:
     - Network:
         - Technitium DNS:
@@ -113,6 +81,19 @@ config:
               url: http://192.168.1.6:5380
               key: "{{HOMEPAGE_VAR_TECHNITIUM_TOKEN}}"
 
+        - Grafana:
+            icon: grafana.png
+            href: http://192.168.1.9:4000
+            decription: grafan instance
+            widget:
+              type: grafana
+              version: 2 # optional, default is 1
+              alerts: alertmanager # optional, default is grafana
+              url: http://192.168.1.9:4000
+              username: admin
+              password: "{{grafana-admin-password}}"
+
+              #this has displayed the icon but needs api after password resolved once and for all
 
     - Media:
         - Plex:
@@ -124,3 +105,18 @@ config:
               url: http://192.168.1.10:32400
               key: "{{HOMEPAGE_VAR_PLEX_TOKEN}}"
 
+    - Weather:
+        - openmeteo:
+            label: Liverpool # optional
+            latitude: 53.400002
+            longitude: -2.983333
+            timezone: Europe/London # optional
+            units: metric # or imperial
+            cache: 5 # Time in minutes to cache API responses, to stay within limits
+            format: # optional, Intl.NumberFormat options
+              maximumFractionDigits: 1
+
+    - Home-Automation:
+        - homeassistant:
+
+              # this might need the server running in back ground??
