@@ -27,6 +27,12 @@ env:
         name: homepage-technitium-token
         key: TECHNITIUM_TOKEN
 
+  - name: HOMEPAGE_VAR_GRAFANA_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: grafana-admin-password
+        key: admin-password
+
   #need to add grafana once password sorted out
 
 enableRbac: true
@@ -46,14 +52,13 @@ config:
     saturate: 50 # 0, 50, 100... see https://tailwindcss.com/docs/backdrop-saturate
     brightness: 50 # 0, 50, 75... see https://tailwindcss.com/docs/backdrop-brightness
     opacity: 50 # 0-100
-    startUrl: https://www.skysports.com/
-    theme: dark
-    headerStyle: boxed
-
-  layout:
-    Media:
-      style: row
-      columns: 4
+    layout:
+      Monitoring:
+        style: row
+        columns: 1
+      Other Services:
+        style: row
+        columns: 3
 
   widgets:
     - kubernetes:
@@ -91,9 +96,32 @@ config:
               alerts: alertmanager # optional, default is grafana
               url: http://192.168.1.9:4000
               username: admin
-              password: "{{grafana-admin-password}}"
+              password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
+    - Monitoring Chart:
+        - Grafana Dashboard:
+            widget:
+              type: iframe
+              src: "http://192.168.1.9:4000/public-dashboards/49704e01859a4cf792935626e9e82132"
+              classes: "h-[500px] w-full"
 
-              #this has displayed the icon but needs api after password resolved once and for all
+
+        - Prometheus:
+            icon: prometheus.png
+            widget:
+              type: prometheusmetric
+              url: http://prometheus-stack-kube-prom-prometheus.monitoring:9090
+              refreshInterval: 10000
+              metrics:
+                - label: Active Alerts
+                  query: alertmanager_alerts{state="active"}
+                - label: CPU Usage
+                  query: avg(1 - rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100
+                  format:
+                  type: percent
+                - label: Memory Used
+                  query: node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes
+                  format:
+                    type: bytes
 
     - Media:
         - Plex:

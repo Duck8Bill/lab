@@ -1,0 +1,6 @@
+  home-assistant-0:
+
+    service:
+      type: LoadBalancer
+      port: 6000
+

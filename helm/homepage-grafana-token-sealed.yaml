@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: homepage-grafana-token
+  namespace: monitoring
+spec:
+  encryptedData:
+    GRAFANA_TOKEN: AgBLaJ0h+eQn/OdAyTZD40BWiA5lmBIc38szR4BslVPDRLCRpNyZz1MBxO3EokM2wtx02154wwEcU6gf3KBLEfgQPBPXxOvsybBhWjWpdJS/u4FjIocsEiJvCqrR+e89jeUqe1ehVASB/Wjp1VhgF7Xo0OFNYcZ3NvDMk2qJWv1o83j/0u2bdmz2DVxVuqa4kt9xHHTwREUrznZJJ9mVKOLtmX0SNcpZksBXt4eEkK19UQjvcNW43JBe82eym4g/00Pau/Vuyb/Sls+HodJUertrs0n4AdflEQ7vQVxN2eW/dxI3YUSK+bFgAzU/z5dx2VuB0EhKSGpg+k2bGYL7jpEtOOHtQoRJnW2ZZhtjDaNzL2URslrj1BtdgDMzBetUhACd4/VoXc1A/Yi0Nd9lIklbGupz/X5ur4r70CXOIuEguqeNFijDDbbOtlZFFecnSMwJJ84HTfdraOQfMmsl5Vmm8WF8TybzeSoRmwVPj71A/ybooPT39GJSaveXjTZ/mfwUhV88wrUT/UW5is92vUNsykzIcyvlAOU8kzSCD2JX4CJ9G8AoP7XlGefqh02c6OcKX+pBpZo+QXyR1KjnLxc9zKwz6aAQSvLTjWzSymHv0ZMOSucGcpygxLAYZoKxpYbX8xNvfHd2Cgt5bsrdI53m+VlrOGSDrdcDlSKB3ityOgEFIKZWP0Ty4HJk9Yk5u9D9N6Jq/n9Z0Hny7qhRR7yb
+  template:
+    metadata:
+      name: homepage-grafana-token
+      namespace: monitoring
