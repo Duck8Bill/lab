@@ -1,0 +1,40 @@
+grafana:
+  service:
+    type: LoadBalancer
+    port: 4000
+  admin:
+    existingSecret: "grafana-admin-password"
+    userKey: admin-user
+    passwordKey: admin-password
+  persistence:
+    enabled: true
+    type: pvc
+    storageClassName: local-path
+    accessModes: ["ReadWriteOnce"]
+    size: 1Gi
+  grafana.ini:
+    security:
+      allow_embedding: true
+    feature_toggles:
+      publicDashboards: true
+
+prometheus:
+  service:
+    type: LoadBalancer
+    port: 9090
+    targetPort: 9090
+  prometheusSpec:
+    additionalScrapeConfigs:
+      - job_name: 'pidns'
+        static_configs:
+          - targets: ['192.168.1.6:9100', '192.168.1.7:9100']
+
+
+kubeControllerManager:
+  enabled: false
+kubeProxy:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeEtcd:
+  enabled: false

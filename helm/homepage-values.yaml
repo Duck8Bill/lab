@@ -33,7 +33,6 @@ env:
         name: grafana-admin-password
         key: admin-password
 
-  #need to add grafana once password sorted out
 
 enableRbac: true
 serviceAccount:
@@ -56,9 +55,15 @@ config:
       Monitoring:
         style: row
         columns: 1
-      Other Services:
+      Network:
         style: row
-        columns: 3
+        columns: 1
+      Media:
+        style: row
+        columns: 1
+      Home-Atomation:
+        style: row
+        columns: 1
 
   widgets:
     - kubernetes:
@@ -86,6 +91,15 @@ config:
               url: http://192.168.1.6:5380
               key: "{{HOMEPAGE_VAR_TECHNITIUM_TOKEN}}"
 
+    
+
+    - Monitoring:
+        - Grafana Dashboard:
+            widget:
+              type: iframe
+              src: "http://192.168.1.9:4000/public-dashboards/99198e1ea1554f288af492a3888e6ff9?viewPanel=panel-1"
+              classes: "h-[800px] w-full"
+
         - Grafana:
             icon: grafana.png
             href: http://192.168.1.9:4000
@@ -96,14 +110,7 @@ config:
               alerts: alertmanager # optional, default is grafana
               url: http://192.168.1.9:4000
               username: admin
-              password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
-    - Monitoring Chart:
-        - Grafana Dashboard:
-            widget:
-              type: iframe
-              src: "http://192.168.1.9:4000/public-dashboards/49704e01859a4cf792935626e9e82132"
-              classes: "h-[500px] w-full"
-
+              password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}" 
 
         - Prometheus:
             icon: prometheus.png
@@ -115,7 +122,7 @@ config:
                 - label: Active Alerts
                   query: alertmanager_alerts{state="active"}
                 - label: CPU Usage
-                  query: avg(1 - rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100
+                  query: round(avg(1 - rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100, 0.1)
                   format:
                   type: percent
                 - label: Memory Used
@@ -133,18 +140,8 @@ config:
               url: http://192.168.1.10:32400
               key: "{{HOMEPAGE_VAR_PLEX_TOKEN}}"
 
-    - Weather:
-        - openmeteo:
-            label: Liverpool # optional
-            latitude: 53.400002
-            longitude: -2.983333
-            timezone: Europe/London # optional
-            units: metric # or imperial
-            cache: 5 # Time in minutes to cache API responses, to stay within limits
-            format: # optional, Intl.NumberFormat options
-              maximumFractionDigits: 1
-
     - Home-Automation:
         - homeassistant:
+            icon: homeassistant.png
 
               # this might need the server running in back ground??
