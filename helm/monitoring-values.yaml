@@ -17,6 +17,27 @@ grafana:
       allow_embedding: true
     feature_toggles:
       publicDashboards: true
+      renderAuthJWT: false
+    auth.anonymous:
+      enabled: true
+      org_name: Main Org.
+      org_role: Viewer
+    rendering:
+      server_url: http://localhost:8081/render
+      callback_url: http://localhost:3000/
+      renderer_token: "273e031937b1fa7a22da0e2c6ac55db6a5627b316f5f4b75c66ebc60ed85b439"
+  extraContainers: |
+    - name: grafana-renderer
+      image: grafana/grafana-image-renderer:latest
+      ports:
+        - name: renderer
+          containerPort: 8081
+          protocol: TCP
+      env:
+        - name: ENABLE_METRICS
+          value: "false"
+        - name: AUTH_TOKEN
+          value: "273e031937b1fa7a22da0e2c6ac55db6a5627b316f5f4b75c66ebc60ed85b439"
 
 prometheus:
   service:
