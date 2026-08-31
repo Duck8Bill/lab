@@ -54,48 +54,68 @@ config:
     layout:
       - Network:
           style: row
-          columns: 1
+          columns: 2
       - DNS Monitor:
           style: row
           columns: 2
       - K3S Monitoring:
           style: row
           columns: 2
-      - Monitoring Widgets:
+      - Widgets:
           style: row
           columns: 2
-      - Media:
-          style: row
-          columns: 1
       - Home-Automation:
           style: row
           columns: 1
 
-  widgets:
-    - kubernetes:
-        cluster:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-          label: "cluster"
-        nodes:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-
-
   services:
     - Network:
-        - Technitium DNS:
-            icon: technitium.png
-            href: http://192.168.1.6:5380
-            description: Local DNS server
+        - DNS Network:
             widget:
-              type: technitium
-              url: http://192.168.1.6:5380
-              key: "{{HOMEPAGE_VAR_TECHNITIUM_TOKEN}}"
+              type: iframe
+              name: PIDNS Network
+              src: "http://192.168.1.10:4000/d-solo/adwq628/Networking?orgId=1&from=now-6h&to=now&panelId=panel-1&refresh=10s"
+              classes: h-52
+              referrerPolicy: same-origin
+              allowFullscreen: false
+              loadingStrategy: eager
+              allowScrolling: no
+
+        - DNS Network:
+            widget:
+              type: iframe
+              name: PIDNS2 Network
+              src: "http://192.168.1.10:4000/d-solo/adwq628/pidns-temp?orgId=1&from=now-6h&to=now&panelId=panel-2&refresh=10s"
+              classes: h-52
+              referrerPolicy: same-origin
+              allowFullscreen: false
+              loadingStrategy: eager
+              allowScrolling: no
+
+        - PAKUBE Network:
+            widget:
+              type: iframe
+              name: PIDNS2 Network
+              src: "http://192.168.1.10:4000/d-solo/adwq628/pidns-temp?orgId=1&from=now-6h&to=now&panelId=panel-3&refresh=10s"
+              classes: h-52
+              referrerPolicy: same-origin
+              allowFullscreen: false
+              loadingStrategy: eager
+              allowScrolling: no
+
+        - PAKUBE2 Network:
+            widget:
+              type: iframe
+              name: PIDNS2 Network
+              src: "http://192.168.1.10:4000/d-solo/adwq628/pidns-temp?orgId=1&from=now-6h&to=now&panelId=panel-4&refresh=10s"
+              classes: h-52
+              referrerPolicy: same-origin
+              allowFullscreen: false
+              loadingStrategy: eager
+              allowScrolling: no
+
+
+
     - DNS Monitor:
         - Pi 1 Temp:
             widget:
@@ -166,7 +186,7 @@ config:
 
 
 
-    - Monitoring Widgets:
+    - Widgets:
         - Grafana:
             icon: grafana.png
             href: http://192.168.1.9:4000
@@ -197,7 +217,6 @@ config:
                   format:
                     type: bytes
 
-    - Media:
         - Plex:
             icon: plex.png
             href: http://192.168.1.10:32400/web
@@ -206,6 +225,29 @@ config:
               type: plex
               url: http://192.168.1.10:32400
               key: "{{HOMEPAGE_VAR_PLEX_TOKEN}}"
+
+        - kubernetes:
+            cluster:
+              show: true
+              cpu: true
+              memory: true
+              showLabel: true
+              label: "cluster"
+            nodes:
+              show: true
+              cpu: true
+              memory: true
+              showLabel: true
+
+        - Technitium DNS:
+            icon: technitium.png
+            href: http://192.168.1.6:5380
+            description: Local DNS server
+            widget:
+              type: technitium
+              url: http://192.168.1.6:5380
+              key: "{{HOMEPAGE_VAR_TECHNITIUM_TOKEN}}"
+
 
     - Home-Automation:
         - homeassistant:
