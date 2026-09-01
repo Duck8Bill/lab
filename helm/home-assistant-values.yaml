@@ -1,6 +1,118 @@
-  home-assistant-0:
+# home-assistant-values.yaml
+# Chart: pajikos/home-assistant-helm-chart
+# Usage: helm upgrade --install home-assistant pajikos/home-assistant -f home-assistant-values.yaml -n <namespace>
+#
+# Sections you're not using yet are commented out — uncomment and adjust as needed.
 
-    service:
-      type: LoadBalancer
-      port: 6000
+# ---------------------------------------------------------------------------
+# SERVICE (LoadBalancer) — active
+# ---------------------------------------------------------------------------
+service:
+  type: LoadBalancer
+  port: 4001
+  annotations: {}
 
+# ---------------------------------------------------------------------------
+# PERSISTENCE (PVC) — active, recommended before you have real data/config
+# ---------------------------------------------------------------------------
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  storageClass: ""   # blank = cluster default StorageClass (k3s default: "local-path")
+  annotations: {}
+  # k8up.io/backup: "true"   # uncomment if using k8up for backups
+
+# ---------------------------------------------------------------------------
+# RESOURCES — active, basic guardrails
+# ---------------------------------------------------------------------------
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    memory: 1Gi
+
+# ---------------------------------------------------------------------------
+# CONFIGURATION (managed configuration.yaml, trusted_proxies)
+# Only needed once you put HA behind ingress/reverse proxy.
+# ---------------------------------------------------------------------------
+# configuration:
+#   enabled: true
+#   forceInit: true
+#   trusted_proxies:
+#     - 10.42.0.0/16   # k3s default pod CIDR — adjust if you changed it
+
+# ---------------------------------------------------------------------------
+# INGRESS — alternative/complement to the LoadBalancer, for a real hostname + TLS
+# If you enable this, consider switching service.type back to ClusterIP
+# ---------------------------------------------------------------------------
+# ingress:
+#   enabled: true
+#   className: traefik   # k3s ships Traefik by default
+#   annotations: {}
+#   hosts:
+#     - host: home-assistant.yourdomain.local
+#       paths:
+#         - path: /
+#           pathType: ImplementationSpecific
+#   tls:
+#     - secretName: ha-tls
+#       hosts:
+#         - home-assistant.yourdomain.local
+
+# ---------------------------------------------------------------------------
+# HA's /config/secrets.yaml. Create the SealedSecret separately; this just
+# wires it into the pod.
+# ---------------------------------------------------------------------------
+#  additionalVolumes:
+#    - name: ha-secrets
+#      secret:
+#        secretName: home-assistant-secrets
+#  additionalMounts:
+#    - name: ha-secrets
+#      mountPath: /config/secrets.yaml
+#      subPath: secrets.yaml
+#      readOnly: true
+
+# ---------------------------------------------------------------------------
+# USB DEVICES (Zigbee/Z-Wave dongles) — needs Recreate strategy since a USB
+# device can't be shared between two pods during a rolling update.
+# ---------------------------------------------------------------------------
+# hostNetwork: true   # needed for HA auto-discovery
+# controller:
+#   deploymentStrategy: Recreate
+# additionalVolumes:
+#   - name: usb
+#     hostPath:
+#       path: /dev/serial/by-id/usb-ITEAD_SONOFF_Zigbee_3.0_USB_Dongle_Plus_V2_XXXXXXXX-if00
+#       type: CharDevice
+# additionalMounts:
+#   - name: usb
+#     mountPath: /dev/ttyACM0
+#     readOnly: true
+
+# ---------------------------------------------------------------------------
+# PROMETHEUS METRICS
+# ---------------------------------------------------------------------------
+# serviceMonitor:
+#   enabled: true
+#   scrapeInterval: 30s
+
+# ---------------------------------------------------------------------------
+# CODE-SERVER ADDON (in-browser editor for /config)
+# ---------------------------------------------------------------------------
+# addons:
+#   codeserver:
+#     enabled: true
+#     auth:
+#       enabled: true
+#       password: "changeme"   # better: use existingSecret instead
+#     ingress:
+#       enabled: true
+#       className: traefik
+#       hosts:
+#         - host: ha-code.yourdomain.local
+#           paths:
+#             - path: /
+#               pathType: ImplementationSpecific
