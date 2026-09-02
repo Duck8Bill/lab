@@ -1,9 +1,18 @@
 service:
   main:
-    type: LoadBalancer
+    type: ClusterIP
     ports:
       http:
         port: 3000
+ingress:
+  main:
+    enabled: true
+    className: traefik
+    hosts:
+      - host: homepage.codexasystems.net
+        paths:
+          - path: /
+            pathType: Prefix
 
 # --- No persistence needed ---
 
@@ -13,7 +22,7 @@ persistence:
 
 env:
   - name: HOMEPAGE_ALLOWED_HOSTS
-    value: "192.168.1.9:3000,192.168.1.10:3000"   # <-- replace with your actual node IP
+    value: "homepage.codexasystems.net"   # <-- replace with your actual node IP
 
   - name: HOMEPAGE_VAR_PLEX_TOKEN
     valueFrom:
@@ -61,7 +70,7 @@ config:
       - Widgets:
           style: row
           columns: 2
-      
+
 
   services:
     - PIDNS:
@@ -230,7 +239,7 @@ config:
               alerts: alertmanager # optional, default is grafana
               url: http://192.168.1.9:4000
               username: admin
-              password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}" 
+              password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
 
         - Prometheus:
             icon: prometheus.png

@@ -1,0 +1,46 @@
+
+image:
+  repository: ghcr.io/advplyr/audiobookshelf
+  tag: 2.36.0
+
+
+persistence:
+  config:
+    enabled: true
+    accessMode: ReadWriteOnce
+    mountPath: /config
+    size: 5Gi
+
+  metadata:
+    enabled: true
+    accessMode: ReadWriteOnce
+    mountPath: /metadata
+    size: 5Gi
+
+  media:
+    enabled: true
+    type: nfs
+    server: 192.168.1.2
+    path: /volume1/Home Media
+    globalMounts:
+      - path: /media
+
+env:
+  TZ: BST
+
+service:
+  main:
+    type: ClusterIP
+    ports:
+      http:
+        port: 80
+
+ingress:
+  main:
+    enabled: true
+    className: traefik
+    hosts:
+      - host: audiobooks.codexasystems.net
+        paths:
+          - path: /
+            pathType: Prefix
