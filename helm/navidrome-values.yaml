@@ -17,6 +17,11 @@ persistence:
 env:
   TZ: BST
   ND_MUSICFOLDER: /music
+  ND_AGENTS: "lastfm,spotify"
+
+envFrom:
+  - secretRef:
+      name: navidrome-secrets
 
 service:
   main:
