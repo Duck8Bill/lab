@@ -1,0 +1,36 @@
+persistence:
+  config:
+    enabled: true
+    accessMode: ReadWriteOnce
+    mountPath: /data
+    size: 2Gi
+  music:
+    enabled: true
+    type: nfs
+    server: 192.168.1.2
+    path: /volume1/Home Media
+    globalMounts:
+      - path: /music
+        subPath: music        # adjust to wherever music actually lives under Home Media
+        readOnly: true
+
+env:
+  TZ: BST
+  ND_MUSICFOLDER: /music
+
+service:
+  main:
+    type: ClusterIP
+    ports:
+      http:
+        port: 4533
+
+ingress:
+  main:
+    enabled: true
+    className: traefik
+    hosts:
+      - host: music.codexasystems.net
+        paths:
+          - path: /
+            pathType: Prefix

@@ -167,7 +167,7 @@ config:
             widget:
               type: iframe
               name: Pi 1 Temp
-              src: "http://192.168.1.10:4000/d-solo/ad2xjfd/new-dashboard?orgId=1&from=now-6h&to=now&timezone=utc&var-datasource=prometheus&var-cluster=$__all&var-instance=192.168.1.10:9100&panelId=panel-1&refresh=10s&hideLogo=true"
+              src: "http://192.168.1.10:4000/d-solo/ad2xjfd/new-dashboard?orgId=1&from=now-6h&to=now&timezone=utc&var-datasource=prometheus&var-cluster=$__all&var-instance=192.168.1.10:9100&panelId=panel-1&refresh=5s&hideLogo=true"
               classes: h-52
               referrerPolicy: same-origin
               allowFullscreen: false
