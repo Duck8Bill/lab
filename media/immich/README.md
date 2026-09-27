@@ -80,6 +80,18 @@ helm install immich oci://ghcr.io/immich-app/immich-charts/immich \
   which is meant for content you want to keep living *outside* Immich 
   long-term, not a one-time migrationi..
 
+## GitOps
+Converted to ArgoCD management. OCI-based chart
+(`oci://ghcr.io/immich-app/immich-charts/immich`) — no `chart:`/`repoURL`
+split like the other apps, since the chart name is baked into the OCI path
+itself. One mistake worth remembering: initially set `targetRevision` to
+the *Immich application* version (`3.1.0`, from the VectorChord
+compatibility notes above) rather than the *Helm chart's own* version —
+two different numbers that live close together in `helm get metadata`
+output and are easy to conflate. Fixed by using the chart version shown
+under `helm get metadata immich -n immich`. Synced instantly once
+corrected, since the live cluster already matched the values file exactly.
+
 ## Status
 - [x] Running stable
 - [x] TLS configured
