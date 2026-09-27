@@ -14,7 +14,7 @@ spec:
         valueFiles:
           - $values/monitoring/prometheus/values.yaml
         releaseName: prometheus-stack
-    - repoURL: https://github.com/codexasystems/lab.git
+    - repoURL: https://github.com/pakube999/lab.git
       targetRevision: main
       ref: values
   destination:
