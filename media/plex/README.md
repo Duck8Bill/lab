@@ -44,6 +44,13 @@ rescheduled unexpectedly (e.g. node drain) — it may need explicit pinning
 (`nodeSelector`/`nodeName`) to stay predictable, [confirm: is this pinned 
 currently, or floating?]. Cluster tainted to limit movement.
 
+## GitOps
+Converted to ArgoCD management — clean conversion, no issues. `hostNetwork`,
+`dnsPolicy`, and `nodeSelector` were already correctly present in
+`plex-values.yaml`, unlike Homepage's setup, so nothing was missing or
+manual-only going in. Chart: `app-template` (bjw-s-labs), multi-source
+Application reading values live from this repo.
+
 ## How to deploy
 \```bash
 kubectl create namespace [plex]
