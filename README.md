@@ -6,10 +6,10 @@ self-hosted applications, all managed as code.
 
 ## Background
 
-I came into this from 17+ years in semiconductor equipment engineering — Nikon/ASML
-lithography systems at Intel — followed by some projects in medtech. This repo
-documents the cluster's evolution as I move toward infrastructure/DevOps: what
-I built, what broke, and what I'd do differently at scale.
+I came into this from two decades in semiconductor equipment engineering — 
+— followed by some projects in proton therpay. 
+This repo documents the cluster's evolution in infrastructure/DevOps: 
+what I built, what broke, and what I'd do differently at scale.
 
 ## Architecture
 
