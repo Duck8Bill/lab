@@ -15,11 +15,11 @@ what I built, what broke, and what I'd do differently at scale.
 
 ```mermaid
 graph TD
-    Internet --> Traefik[Traefik Ingress]
-    Traefik --> Apps[Apps: Audiobookshelf / Plex / Navidrome / Immich / Homepage]
-    Traefik --> Grafana
-    Traefik --> ArgoCD
+    LAN[LAN / Local DNS] --> Traefik[Traefik Ingress]
     CertManager[cert-manager] --> Traefik
+    Traefik --> ArgoCD
+    Traefik --> Grafana
+    Traefik --> Apps[Apps: Audiobookshelf / Plex / Navidrome / Immich / Homepage]
     Prometheus --> Grafana
     Prometheus --> Apps
     ArgoCD -.watches/syncs.-> Apps
