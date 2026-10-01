@@ -5,9 +5,7 @@ DevOps and platform engineering — infrastructure, observability, GitOps, and
 self-hosted applications, all managed as code.
 
 ## Background
-
-I came into this from two decades in semiconductor equipment engineering — 
-— followed by some projects in proton therpay. 
+ 
 This repo documents the cluster's evolution in infrastructure/DevOps: 
 what I built, what broke, and what I'd do differently at scale.
 

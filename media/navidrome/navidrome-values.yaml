@@ -16,6 +16,7 @@ persistence:
 
 env:
   TZ: BST
+  ND_ENABLETRANSCODINGCONFIG: "true"
   ND_MUSICFOLDER: /music
   ND_AGENTS: "lastfm,spotify"
 
