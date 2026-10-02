@@ -63,16 +63,16 @@ config:
     layout:
       - PIDNS:
           style: row
-          columns: 2
+          columns: 4
       - PAKUBE Monitor:
           style: row
-          columns: 2
+          columns: 4
       - Prometheus:
           style: row
           columns: 1
       - Widgets:
           style: row
-          columns: 2
+          columns: 4
 
 
   services:
