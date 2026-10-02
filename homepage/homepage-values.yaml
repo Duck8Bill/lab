@@ -238,7 +238,7 @@ config:
               type: iframe
               name: Memory Use
               src: "http://192.168.1.10:4000/d-solo/a87fb0d919ec0ea5f6543124e16c42a5/kubernetes-compute-resources-namespace-workloads?orgId=1&from=now-1h&to=now&var-datasource=default&var-cluster=&var-namespace=argocd&var-type=$__all&refresh=10s&panelId=panel-3&hideLogo=true"
-              classes: h-52
+              classes: "col-span-2 h-52"
               referrerPolicy: same-origin
               allowFullscreen: false
               loadingStrategy: eager
