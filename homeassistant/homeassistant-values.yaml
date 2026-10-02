@@ -1,0 +1,23 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/home-assistant/home-assistant
+  pullPolicy: IfNotPresent
+  tag: ""
+
+env:
+  - name: TZ
+    value: Europe/London
+
+service:
+  type: ClusterIP
+  port: 8123
+
+ingress:
+  enabled: false  # Using Traefik IngressRoute instead
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  storageClass: ""

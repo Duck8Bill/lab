@@ -1,0 +1,14 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: homeassistant-home-assistant
+  namespace: homeassistant
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`ha.codexasystems.net`)
+      kind: Rule
+      services:
+        - name: homeassistant-home-assistant
+          port: 8123
