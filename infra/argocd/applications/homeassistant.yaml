@@ -13,7 +13,7 @@ spec:
         valueFiles:
           - $values/homeassistant/homeassistant-values.yaml
     - repoURL: https://github.com/pakube999/lab.git
-      targetRevision: feature/homeassistant-cicd
+      targetRevision: main
       ref: values
   destination:
     server: https://kubernetes.default.svc
