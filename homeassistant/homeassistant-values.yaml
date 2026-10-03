@@ -10,7 +10,7 @@ env:
     value: Europe/London
 
 service:
-  type: LoadBalancer
+  type: ClusterIP
   port: 8123
 
 ingress:
