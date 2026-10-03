@@ -307,7 +307,7 @@ config:
               key: "{{HOMEPAGE_VAR_TECHNITIUM_TOKEN}}"
 
 
-#    - Home-Automation:
- #       - homeassistant:
-  #          icon: homeassistant.png
+    - Home-Automation:
+        - homeassistant:
+            icon: homeassistant.png
 
