@@ -17,9 +17,10 @@ graph TD
     Traefik --> Grafana
     Traefik --> Apps[Apps: Audiobookshelf / Plex / Navidrome / Immich / Homepage / HomeAssistant]
     Prometheus --> Grafana
-    Prometheus --> Apps
-    ArgoCD -.watches/syncs.-> Apps
-    GitHub[GitHub Actions CI] -.validates on PR.-> ArgoCD
+    Prometheus -.scrapes.-> Apps
+    GitHub[GitHub Actions CI] -.validates PR.-> Repo[Git Repo]
+    Repo -.watched by.-> ArgoCD
+    ArgoCD -.deploys.-> Apps
 ```
 
 - **Cluster**: K3s, 2 nodes — bare metal, repurposed laptops running Ubuntu Server
