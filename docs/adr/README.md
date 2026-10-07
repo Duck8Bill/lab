@@ -13,4 +13,5 @@ new ADR is written superseding the old one.
 | [ADR-002](ADR-002-rejected-app-of-apps.md) | Rejected app-of-apps pattern | Accepted |
 | [ADR-003](ADR-003-manual-sync-policy.md) | Manual sync policy initially | Accepted |
 | [ADR-004](ADR-004-sealedsecrets-over-eso.md) | SealedSecrets over External Secrets Operator | Accepted |
+| [ADR-006](ADR-006-deferred-image-scanning.md) | Deferred image scanning — Trivy supply chain incident | Accepted |
 | [ADR-005](ADR-005-remote-charts-over-local.md) | Remote Helm charts over local | Accepted |
