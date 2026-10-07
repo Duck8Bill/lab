@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-07
+- Observed pakube2 worker node i/o timeout causing cluster-wide pod restart
+- Cluster self-healed within ~2 minutes, all pods returned to healthy
+- Root cause likely aging Netgear unmanaged switch — planned Mikrotik upgrade will address
+
 ## 2026-10-04
 - Added Renovate bot for automated dependency updates
 - Added branch protection rules on main
