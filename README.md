@@ -46,6 +46,7 @@ graph TD
 | [`media/`](./media) | Self-hosted apps — Plex, Navidrome, Audiobookshelf, Immich |
 | [`homepage/`](./homepage) | Dashboard / landing page for the cluster |
 | [`homeassistant/`](./homeassistant) | Home automation — also the CI/CD pipeline reference app |
+| [`docs/adr/`](./docs/adr) | Architecture Decision Records — why key decisions were made |
 
 Each folder has its own README covering what the app is, why it's there, and any
 gotchas hit while deploying it.
