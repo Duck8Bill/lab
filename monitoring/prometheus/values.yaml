@@ -60,13 +60,11 @@ kubeScheduler:
 kubeEtcd:
   enabled: false
 
+
 alertmanager:
   config:
     global:
       smtp_smarthost: 'smtp.gmail.com:587'
-      smtp_from_file: /etc/alertmanager/secrets/alertmanager-gmail/email
-      smtp_auth_username_file: /etc/alertmanager/secrets/alertmanager-gmail/email
-      smtp_auth_password_file: /etc/alertmanager/secrets/alertmanager-gmail/app-password
       smtp_require_tls: true
     route:
       group_by: ['alertname', 'namespace']
@@ -86,10 +84,25 @@ alertmanager:
     receivers:
       - name: 'email'
         email_configs:
-          - to_file: /etc/alertmanager/secrets/alertmanager-gmail/email
+          - to: '{{ env "ALERTMANAGER_TO" }}'
+            from: '{{ env "ALERTMANAGER_FROM" }}'
+            smarthost: 'smtp.gmail.com:587'
+            auth_username: '{{ env "ALERTMANAGER_FROM" }}'
+            auth_password_file: /etc/alertmanager/secrets/alertmanager-gmail/app-password
             send_resolved: true
   alertmanagerSpec:
     secrets:
       - alertmanager-gmail
-
-
+    containers:
+      - name: alertmanager
+        env:
+          - name: ALERTMANAGER_FROM
+            valueFrom:
+              secretKeyRef:
+                name: alertmanager-gmail
+                key: email
+          - name: ALERTMANAGER_TO
+            valueFrom:
+              secretKeyRef:
+                name: alertmanager-gmail
+                key: email
